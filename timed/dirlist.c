@@ -8,6 +8,8 @@
 #include <sys/types.h>
 #include <dirent.h>
 
+int fnmerge(char *fname, char *drive, char *dir, char *name, char *ext);
+
 /* Add a file to a list of files for display. */
 
 static void add_file(FILELIST * list, FLIST * thisone)
@@ -95,7 +97,7 @@ char **dirlist(char *filespec, char tagging)
             add_file(list, cf);
         }
 
-        sprintf(temp, " þ Reading directory %s", location);
+        sprintf(temp, " * Reading directory %s", location);
         printeol(0, 0, cfg.col[Cmsgbar], temp);
 
         dp = opendir(location);
@@ -160,12 +162,12 @@ char **dirlist(char *filespec, char tagging)
             return NULL;
         }
 
-        sprintf(temp, " þ Sorting directory %s", location);
+        sprintf(temp, " * Sorting directory %s", location);
         printeol(0, 0, cfg.col[Cmsgbar], temp);
 
         qsort(list->liststart, list->curnum, sizeof(void *), comp_flist);
 
-        sprintf(temp, " þ Path: %s", location);
+        sprintf(temp, " * Path: %s", location);
         printeol(0, 0, cfg.col[Cmsgbar], temp);
 
         if (tagging)
@@ -280,7 +282,7 @@ int showfiles(FILELIST * list, char tagging)
 
             if (curptr->status & FTAGGED)
             {
-                temp[0] = 0xfe;
+                temp[0] = '*'; // replaced 'ï¿½' with '*'
             }
 
             if (l == curline)
@@ -643,7 +645,7 @@ char **dirlist(char *filespec, char tagging)
             add_file(list, cf);
         }
 
-        sprintf(temp, " þ Reading directory..", location);
+        sprintf(temp, " * Reading directory..", location);
         printeol(0, 0, cfg.col[Cmsgbar], temp);
 
 #ifndef __WATCOMC__
@@ -715,12 +717,12 @@ char **dirlist(char *filespec, char tagging)
             return NULL;
         }
 
-        sprintf(temp, " þ Sorting directory..", location);
+        sprintf(temp, " * Sorting directory..", location);
         printeol(0, 0, cfg.col[Cmsgbar], temp);
 
         qsort(list->liststart, list->curnum, sizeof(void *), comp_flist);
 
-        sprintf(temp, " þ Path: %s", location);
+        sprintf(temp, " * Path: %s", location);
         printeol(0, 0, cfg.col[Cmsgbar], temp);
         if (tagging)
             statusbar
@@ -817,7 +819,7 @@ int showfiles(FILELIST * list, char tagging)
                         curptr->size / 1024);
 
             if (curptr->status & FTAGGED)
-                temp[0] = 'þ';
+                temp[0] = '*';
 
             if (l == curline)
             {

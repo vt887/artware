@@ -1,7 +1,7 @@
 #ifndef __FE141_H__
 #define __FE141_H__
 
-#pragma pack(__push, 1)
+#pragma pack(push, 1)
 
 /********************************************************/
 /* 'C' Structures of FastEcho 1.41, File: FASTECHO.CFG  */
@@ -444,6 +444,6 @@ typedef struct
 /* Routines to access Node.areas, Node.groups           */
 /********************************************************/
 
-#pragma pack(__pop)
+#pragma pack(pop)
 
 #endif

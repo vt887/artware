@@ -18,8 +18,6 @@ typedef int YesNo;
 #define YES 1
 #define NO  0
 
-#include <spack.h>
-
 typedef struct
 {
     int x1, y1, x2, y2;         /* Corners */
@@ -29,8 +27,6 @@ typedef struct
     char fill;                  /* The character to fill the screen */
     YesNo save;
 } BOX;
-
-#include <spop.h>
 
 BOX *initbox(int x1, int y1, int x2, int y2, int border, int inside,
              int bstyle, YesNo save, char fill);

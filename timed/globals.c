@@ -2,6 +2,8 @@
 #include <msgapi.h>
 #include "tstruct.h"
 #include "unused.h"
+#include <string.h>
+#include <stdlib.h>
 
 CFG cfg;                        // Holds the config
 CUSTOM custom;                  // Custom area configuration

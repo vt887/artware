@@ -1,7 +1,7 @@
 #ifndef __WTRGATE_H__
 #define __WTRGATE_H__
 
-#pragma pack(__push, 1)
+#pragma pack(push, 1)
 
 // Watergate areabase definitions.
 
@@ -64,6 +64,6 @@ typedef struct
 
 } WTRAKA;
 
-#pragma pack(__pop)
+#pragma pack(pop)
 
 #endif

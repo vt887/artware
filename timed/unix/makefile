@@ -1,10 +1,16 @@
-# timEd makefile for UNIX build
+# timEd makefile for UNIX build (GNU make compatible)
 
-TARGET=../timedunx
-CFLAGS=-Wfatal-errors -m32 -fstack-protector-all -W -Wall -g -I../../api -I../utils -funsigned-char
-MSGAPI=../../api/unixapi.a
-SRC_DIR=..
-VPATH=$(SRC_DIR)
+TARGET = ../timedunx
+
+# Compiler and flags
+CC = gcc
+RM = rm -f
+CFLAGS = -Wfatal-errors -m64 -fstack-protector-all -W -Wall -g -I../../api -I../util -funsigned-char
+MSGAPI = ../../api/unixapi.a
+AR=ar
+RANLIB=ranlib
+SRC_DIR = ..
+VPATH = $(SRC_DIR)
 
 OBJS=areatags.o attach.o bmg.o checkcc.o choose.o select.o shel2dos.o \
   showhdr.o showinfo.o showmail.o getmsg.o globals.o header.o help.o \
@@ -16,11 +22,19 @@ OBJS=areatags.o attach.o bmg.o checkcc.o choose.o select.o shel2dos.o \
   scrnutilunix.o picklist.o markchn.o macro.o charset.o filter.o v7.o fd.o \
   nodelist.o nodebrow.o private.o fidonode.o fidouser.o patmat.o
 
-.c.o:
-	$(CC) $(CFLAGS) -o $*.o -c $<
+# Pattern rule: compile .c → .o
+$(SRC_DIR)/%.o: $(SRC_DIR)/%.c
+	$(CC) $(CFLAGS) -c -o $@ $<
 
-$(TARGET): $(OBJS)
-	$(CC) $(CFLAGS) -o $(TARGET) $(OBJS) $(MSGAPI) -lncurses
+# Pattern rule for utils subdirectory
+$(SRC_DIR)/utils/%.o: $(SRC_DIR)/util/%.c
+	$(CC) $(CFLAGS) -c -o $@ $<
 
+# Link target
+$(TARGET): $(OBJS) $(MSGAPI)
+	$(CC) $(CFLAGS) -o $@ $(OBJS) $(MSGAPI) -lncurses
+
+# Clean
+.PHONY: clean
 clean:
 	rm -f $(OBJS) $(TARGET)

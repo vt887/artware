@@ -1,7 +1,7 @@
 #ifndef __FE130_H__
 #define __FE130_H__
 
-#pragma pack(__push, 1)
+#pragma pack(push, 1)
 
 /********************************************************/
 /* 'C' Structures of FastEcho 1.30, File: FASTECHO.CFG  */
@@ -414,6 +414,6 @@ typedef struct
 #define EH_RA200_MSG    0x0105
 #define EH_PB130_MSG    0x0106
 
-#pragma pack(__pop)
+#pragma pack(pop)
 
 #endif

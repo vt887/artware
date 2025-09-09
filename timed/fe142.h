@@ -1,10 +1,10 @@
 #ifndef __FE142_H__
 #define __FE142_H__
 
-#pragma pack(__push, 1)
+#pragma pack(push, 1)
 
 /********************************************************/
-/* 'C' Structures of FastEcho 1.42á, File: FASTECHO.CFG */
+/* 'C' Structures of FastEcho 1.42ï¿½, File: FASTECHO.CFG */
 /* (c)1994 by Tobias Burchhardt, Updated: 27 Nov 1994   */
 /********************************************************/
 
@@ -473,6 +473,6 @@ word GetBam(byte * bam, word nr)
 
 #endif
 
-#pragma pack(__pop)
+#pragma pack(pop)
 
 #endif

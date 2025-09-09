@@ -1,7 +1,7 @@
 #ifndef __FMAIL120_H__
 #define __FMAIL120_H__
 
-#pragma pack(__push, 1)
+#pragma pack(push, 1)
 
 /*
    FMSTRUCT.H
@@ -541,6 +541,6 @@ typedef struct
     uchar reserved[180];
 } FM12rawEchoType;
 
-#pragma pack(__pop)
+#pragma pack(pop)
 
 #endif

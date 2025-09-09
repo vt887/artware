@@ -36,8 +36,6 @@ size_t HLstrlen(char *s);
 
 #if defined(__DOS__) && defined(__FLAT__)
 #include <graph.h>
-#else
-void _settextcursor(short type);
 #endif
 
 #ifndef _NOCURSOR

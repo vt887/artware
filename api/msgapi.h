@@ -50,8 +50,6 @@ typedef struct _msgh MSGH;
 typedef dword UMSGID;
 typedef struct _netaddr NETADDR;
 
-#include "spack.h"  /* #pragma pack */
-
 struct _minf
 {
     word req_version;
@@ -254,8 +252,6 @@ struct _msgapi
     void /* far */ *apidata;
 };
 
-#include "spop.h"  /* #pragma pop */
-
 
 /* This is a 'dummy' message handle.  The other message handlers (contained *
  * in API_SQ.C and API_SDM.C) will define their own structures, with some   *
@@ -430,7 +426,7 @@ void CopyMIS(MIS * in, MIS * out);
 **  Structure to contain date/time information
 */
 
-#include "spack.h"
+#pragma pack(push, 1)
 
 typedef struct JAMtm
 {
@@ -445,7 +441,7 @@ typedef struct JAMtm
      tm_isdst;                  /* Daylight savings time (not used) */
 } JAMTM;
 
-#include "spop.h"
+#pragma pack(pop)
 
 dword JAMsysTime(dword * pTime);
 dword JAMsysMkTime(JAMTM * pTm);

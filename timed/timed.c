@@ -102,27 +102,27 @@ int main(int argc, char *argv[])
     cls();
 
     copyright = initbox(0, 0, 4, maxx - 1, 3, 7, SINGLE, NO, ' ');
-    intro = initbox(4, 0, maxy - 1, maxx - 1, 3, 7, SINGLE, NO, '±');
+    intro = initbox(4, 0, maxy - 1, maxx - 1, 3, 7, SINGLE, NO, ' ');
     drawbox(copyright);
     drawbox(intro);
     delbox(copyright);
     delbox(intro);
 
-    print(1, maxx - 28, 4, "ÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛ");
+    print(1, maxx - 28, 4, "ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½");
     print(2, maxx - 28, 112, "  Made in The Netherlands  ");
-    print(3, maxx - 28, 1, "ÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛ");
-    print(0, maxx - 29, 3, "Â");
-    print(1, maxx - 29, 3, "³");
-    print(2, maxx - 29, 3, "³");
-    print(3, maxx - 29, 3, "³");
-    print(4, maxx - 29, 3, "Á");
+    print(3, maxx - 28, 1, "ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½");
+    print(0, maxx - 29, 3, "ï¿½");
+    print(1, maxx - 29, 3, "ï¿½");
+    print(2, maxx - 29, 3, "ï¿½");
+    print(3, maxx - 29, 3, "ï¿½");
+    print(4, maxx - 29, 3, "ï¿½");
 
     print(1, 19, 7, myname);
     print(2, 5, 7, "(c) 1992-" PROGYEAR "  Gerard van Essen and others.");
     print(3, 3, 7, "Message editor for Squish, *.MSGA, JAM & Hudson");
 
-    print(4, 0, 3, "Ã");
-    print(4, maxx - 1, 3, "´");
+    print(4, 0, 3, "ï¿½");
+    print(4, maxx - 1, 3, "ï¿½");
 
     configstatus = initbox(8, 4, 20, 75, 3, 7, SINGLE, NO, ' ');
     drawbox(configstatus);
@@ -430,7 +430,7 @@ AREA *nextnewmail(AREA * thisarea, int direction)
 
     while (thisarea)
     {
-        if (kbhit() && (getch() == 27))
+        if (xkbhit() && (getch() == 27))
             return NULL;
 
         sprintf(temp, "Scanning area: %-0.50s", thisarea->tag);

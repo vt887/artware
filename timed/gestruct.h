@@ -1,7 +1,7 @@
 #ifndef __GESTRUCT_H__
 #define __GESTRUCT_H__
 
-#pragma pack(__push, 1)
+#pragma pack(push, 1)
 
 /*
 **  gestruct.h
@@ -642,7 +642,7 @@ typedef struct
 }
 MBUTIL_RNX;
 
-#pragma pack(__pop)
+#pragma pack(pop)
 
 #endif
 

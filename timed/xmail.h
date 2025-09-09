@@ -1,7 +1,7 @@
 #ifndef __XMAIL_H__
 #define __XMAIL_H__
 
-#pragma pack(__push, 1)
+#pragma pack(push, 1)
 
 //    msgbasetype   = (Hudson,Msg,PassThrough,Squish,jam);
 
@@ -53,6 +53,6 @@ typedef struct
 
 } xMailArea;
 
-#pragma pack(__pop)
+#pragma pack(pop)
 
 #endif

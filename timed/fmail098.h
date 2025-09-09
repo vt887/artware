@@ -1,7 +1,7 @@
 #ifndef __FMAIL098_H__
 #define __FMAIL098_H__
 
-#pragma pack(__push, 1)
+#pragma pack(push, 1)
 
 /*
    FMSTRUCT.H
@@ -505,6 +505,6 @@ typedef struct
     sword destAka;
 } badEchoType;
 
-#pragma pack(__pop)
+#pragma pack(pop)
 
 #endif

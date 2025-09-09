@@ -11,9 +11,9 @@
 #include "wtrgate.h"
 #include "crc.h"
 
-
+int fnmerge(char *fname, char *drive, char *dir, char *name, char *ext);
 char *xgstr(char *line);
-
+char *strrev(char *txt); // Add prototype for strrev
 void readconfig(void);
 void analyse(char *line, int number);
 void parseaddress(char *address);
@@ -144,7 +144,7 @@ CFGTABLE cfgtable[MAXCFG] = {
 typedef struct oneargtable
 {
     dword crc;
-    void (*fnptr) ();
+    void (*fnptr)(char *); // Use correct prototype for function pointer
     char oneword;
 
 } ONEARGTABLE;
@@ -337,8 +337,8 @@ void readconfig(void)
 
     strcat(temp, DIRSEP "timed.cfg");
 
-    print(10, 7, 9, "û");
-    print(10, 35, 7, "(timEd.cfg)");
+    print(10, 7, 9, (unsigned char *)"?");
+    print(10, 35, 7, (unsigned char *)"(timEd.cfg)");
 
     ReadConfigFile(temp, 0);
 
@@ -570,8 +570,8 @@ void analyse(char *line, int number)
 
     else
     {
-        sprintf(msg, "Unknown keyword: %-0.30s on line %d!", keyword,
-                globalline);
+        sprintf(msg, "Unknown keyword: %.30s on line %d!", keyword,
+                globalline); // fixed format string: removed %-0.30s
         Message(msg, -1, 0, YES);
     }
 }
@@ -614,7 +614,7 @@ void addname(char *name)
     }
 
     strncpy(cfg.usr.name[n].name, name, 39);
-    cfg.usr.name[n].hash = SquishHash(name);
+    cfg.usr.name[n].hash = SquishHash((unsigned char *)name); // cast to unsigned char *
 
     strlwr(name);
     cfg.usr.name[n].crc = JAMsysCrc32(name, strlen(name), -1L);
@@ -719,7 +719,7 @@ void addarea(char *value, word type)
     while ((*tempptr != '"') && (*tempptr != '\0'))
         tempptr++;
 
-    if (tempptr != '\0')
+    if (tempptr != NULL)
         tempptr++;              /* skip over first " */
 
     while ((*tempptr != '"') && (*tempptr != '\0'))
@@ -861,8 +861,8 @@ char *getquoted(char *line)
     if (strchr(line, '"') == NULL
         || strchr(line, '"') == strrchr(line, '"'))
     {
-        sprintf(msg, "Illegal line format in %0.30s (line %d)", line,
-                globalline);
+        sprintf(msg, "Illegal line format in %.30s (line %d)", line,
+                globalline); // fixed format string: removed %0.30s
         Message(msg, -1, 0, YES);
         return temp;
     }
@@ -1111,7 +1111,7 @@ void ReadSquishCfg(char *filename)
             temp[32] = '.';
             temp[31] = '.';
         }
-        print(14, 36, 7, temp);
+        print(14, 36, 7, (unsigned char *)temp);
     }
 
     while (fgets(line, sizeof line, squishfile) != NULL)
@@ -1152,7 +1152,7 @@ void ReadSquishCfg(char *filename)
 
     fclose(squishfile);
 
-    print(14, 7, 9, "û");
+    print(14, 7, 9, (unsigned char *)"?");
 
 }
 
@@ -1194,7 +1194,7 @@ void ReadAreasBBS(void)
         temp[43] = '.';
         temp[42] = '.';
     }
-    print(16, 25, 7, temp);
+    print(16, 25, 7, (unsigned char *)temp);
 
 
     while (fgets(line, sizeof line, areasfile) != NULL)
@@ -1215,7 +1215,7 @@ void ReadAreasBBS(void)
 
     fclose(areasfile);
 
-    print(16, 7, 9, "û");
+    print(16, 7, 9, (unsigned char *)"?");
 
 }
 
@@ -1225,7 +1225,7 @@ void ReadAreasBBS(void)
 void ReadFECFG(void)
 {
     CONFIG *fecfg;
-    int l, extraleft, n, left, toread;
+    int l, extraleft, left, toread;
     long areaoffset = 0L;
     int cfgfile;
     Area *areas = NULL;
@@ -1236,7 +1236,6 @@ void ReadFECFG(void)
     int got;
     AREA *thisarea;
     word revision = 0;
-
 
     if ((cfgfile = sopen(FEcfg, O_BINARY | O_RDONLY, SH_DENYNO, S_IREAD)) == -1)
     {
@@ -1254,7 +1253,7 @@ void ReadFECFG(void)
         temp[32] = '.';
         temp[31] = '.';
     }
-    print(14, 36, 7, temp);
+    print(14, 36, 7, (unsigned char *)temp);
 
     if (read(cfgfile, &revision, sizeof(word)) != sizeof(word))
     {
@@ -1297,7 +1296,7 @@ void ReadFECFG(void)
     if (fecfg->AkaCnt == 1)
         memmove(aka_array, fecfg->oldakas, sizeof(SysAddress));
 
-    for (n = 0; extraleft > 0; n++)
+    while(extraleft > 0)
     {
         if (read(cfgfile, &eh, sizeof(ExtensionHeader)) !=
             sizeof(ExtensionHeader))
@@ -1391,8 +1390,8 @@ void ReadFECFG(void)
                       (unsigned)(toread * sizeof(FE141Area)))) !=
                 (int)(toread * sizeof(FE141Area)))
             {
-                sprintf(msg, "Error reading %s! (got %d, wanted %d)",
-                        FEcfg, got, toread * sizeof(FE141Area));
+                sprintf(msg, "Error reading %s! (got %d, wanted %lu)",
+                        FEcfg, got, (unsigned long)(toread * sizeof(FE141Area)));
                 Message(msg, -1, 0, YES);
                 close(cfgfile);
                 mem_free(fecfg);
@@ -1419,9 +1418,10 @@ void ReadFECFG(void)
         mem_free(FE141areas);
     mem_free(aka_array);
 
-    print(14, 7, 9, "û");
+    print(14, 7, 9, (unsigned char *)"?");
 
 }
+
 
 // =========================================================
 
@@ -1429,7 +1429,7 @@ void ReadFECFG(void)
 void ReadNewFECFG(int cfgfile)
 {
     FENEW_CONFIG *fecfg;
-    int l, extraleft, n, left, toread;
+    int l, extraleft, left, toread;
     long areaoffset = 0L;
     Area *areas = NULL;
     FENEW_Area *FE142areas = NULL;
@@ -1456,7 +1456,7 @@ void ReadNewFECFG(int cfgfile)
         fecfg->AkaCnt = 1;
     aka_array = mem_calloc(fecfg->AkaCnt, sizeof(FENEW_SysAddress));
 
-    for (n = 0; extraleft > 0; n++)
+    while (extraleft > 0)
     {
         if (read(cfgfile, &eh, sizeof(ExtensionHeader)) !=
             sizeof(ExtensionHeader))
@@ -1511,8 +1511,8 @@ void ReadNewFECFG(int cfgfile)
                   (unsigned)(toread * sizeof(FENEW_Area)))) !=
             (int)(toread * sizeof(FENEW_Area)))
         {
-            sprintf(msg, "Error reading %s! (got %d, wanted %d)", FEcfg,
-                    got, toread * sizeof(FENEW_Area));
+            sprintf(msg, "Error reading %s! (got %d, wanted %lu)", FEcfg,
+                    got, (unsigned long)(toread * sizeof(FENEW_Area)));
             Message(msg, -1, 0, YES);
             close(cfgfile);
             mem_free(fecfg);
@@ -1536,7 +1536,7 @@ void ReadNewFECFG(int cfgfile)
         mem_free(FE142areas);
     mem_free(aka_array);
 
-    print(14, 7, 9, "û");
+    print(14, 7, 9, (unsigned char *)"?");
 
 }
 
@@ -2042,7 +2042,7 @@ void ReadGEchoCFG(void)
         temp[32] = '.';
         temp[31] = '.';
     }
-    print(14, 36, 7, temp);
+    print(14, 36, 7, (unsigned char *)temp);
 
 
     if (cfg.usr.status & READNET)
@@ -2289,7 +2289,7 @@ void ReadGEchoCFG(void)
 
 
     mem_free(sys);
-    print(14, 7, 9, "û");
+    print(14, 7, 9, (unsigned char *)"?");
 
 }
 
@@ -2376,7 +2376,6 @@ void ana_GECHO_area(AREAFILE_GE * area, GE_ADDRESS * aka_array)
 }
 
 
-
 // void ReadImailCFG(void)
 // {
 //    im_config_type *imcfg;
@@ -2454,7 +2453,7 @@ void ana_GECHO_area(AREAFILE_GE * area, GE_ADDRESS * aka_array)
 //    close(cfgfile);
 //    mem_free(imcfg);
 //
-//    print(14,7,9,"û");
+//    print(14,7,9,"?");
 //
 // }
 //
@@ -2578,7 +2577,7 @@ void ReadxMailCFG(void)
         temp[32] = '.';
         temp[31] = '.';
     }
-    print(14, 36, 7, temp);
+    print(14, 36, 7, (unsigned char *)temp);
 
     while (fread(&area, sizeof(area), 1, cfgfile) == 1)
     {
@@ -2589,7 +2588,7 @@ void ReadxMailCFG(void)
 
     fclose(cfgfile);
 
-    print(14, 7, 9, "û");
+    print(14, 7, 9, (unsigned char *)"?");
 
 
 }
@@ -2629,9 +2628,9 @@ void ReadFmailCFG(void)
         temp[32] = '.';
         temp[31] = '.';
     }
-    print(14, 36, 7, temp);
+    print(14, 36, 7, (unsigned char *)temp);
 
-    if (filelength(cfgfile) > oldcfgsize)
+    if (filelength(cfgfile) > (long)oldcfgsize)
     {
         fm12cfg = mem_calloc(1, fm12cfgsize);
         isFmail120 = 1;
@@ -2641,7 +2640,7 @@ void ReadFmailCFG(void)
 
     if (isFmail120)
     {
-        if (read(cfgfile, fm12cfg, fm12cfgsize) != fm12cfgsize)
+        if (read(cfgfile, fm12cfg, fm12cfgsize) != (ssize_t)fm12cfgsize)
         {
             sprintf(msg, "Error reading %s!", Fmailcfg);
             Message(msg, -1, 0, YES);
@@ -2655,7 +2654,7 @@ void ReadFmailCFG(void)
     }
     else
     {
-        if (read(cfgfile, fmcfg, oldcfgsize) != oldcfgsize)
+        if (read(cfgfile, fmcfg, oldcfgsize) != (ssize_t)oldcfgsize)
         {
             sprintf(msg, "Error reading %s!", Fmailcfg);
             Message(msg, -1, 0, YES);
@@ -2719,8 +2718,7 @@ void ReadFmailCFG(void)
             thisarea->dir = AllocRemapPath(fmcfg->rcvdPath);
 
             thisarea->type = NETMAIL;
-            thisarea->tag = thisarea->desc =
-                mem_strdup("Received_Netmail");
+            thisarea->tag = thisarea->desc = mem_strdup("Received_Netmail");
             AddLinkedArea(thisarea);
         }
 
@@ -2807,7 +2805,7 @@ void ReadFmailCFG(void)
         return;
     }
 
-    if (strncmpi(hdr.versionString, "fmail", 5) != 0) // Old type?
+    if (strncmpi((const char *)hdr.versionString, "fmail", 5) != 0) // Old type?
     {
         lseek(cfgfile, 0L, SEEK_SET);
 
@@ -2815,7 +2813,7 @@ void ReadFmailCFG(void)
         {
             if (!(counter++ % 5))
                 working(14, 7, 7);
-            old_ana_Fmail_area(&oldarea, &fmcfg->akaList);
+            old_ana_Fmail_area(&oldarea, fmcfg->akaList); // pass as pointer, not address of array
         }
     }
     else
@@ -2836,9 +2834,9 @@ void ReadFmailCFG(void)
                 working(14, 7, 7);
 
             if (isFmail120)
-                ana_Fmail_area(&area, &fm12cfg->akaList);
+                ana_Fmail_area(&area, fm12cfg->akaList);
             else
-                ana_Fmail_area(&area, &fmcfg->akaList);
+                ana_Fmail_area(&area, fmcfg->akaList);
             n++;
         }
     }
@@ -2848,7 +2846,7 @@ void ReadFmailCFG(void)
     if (fm12cfg)
         mem_free(fm12cfg);
 
-    print(14, 7, 9, "û");
+    print(14, 7, 9, (unsigned char *)"?");
 
 }
 
@@ -3004,7 +3002,7 @@ void ReadWtrCFG(void)
         temp[32] = '.';
         temp[31] = '.';
     }
-    print(14, 36, 7, temp);
+    print(14, 36, 7, (unsigned char *)temp);
 
     lseek(cfgfile, 333, SEEK_SET);
 
@@ -3036,12 +3034,12 @@ void ReadWtrCFG(void)
     {
         if (!(counter++ % 5))
             working(14, 7, 7);
-        ana_wtr_area(&area, &akalist);
+        ana_wtr_area(&area, akalist);
     }
 
     close(cfgfile);
 
-    print(14, 7, 9, "û");
+    print(14, 7, 9, (unsigned char *)"?");
 
 
 }
@@ -3238,7 +3236,7 @@ void ReadConfigFile(char *temp, int showname)
 
     if (showname)
     {
-        print(18, 7, 9, "û");
+        print(18, 7, 9, (unsigned char *)"?");
         sprintf(show, "(%s)", temp);
         if (strlen(show) > 36)
         {
@@ -3248,7 +3246,7 @@ void ReadConfigFile(char *temp, int showname)
             show[33] = '.';
         }
         sprintf(msg, "%-36.36s", show);
-        print(18, 30, 7, msg);
+        print(18, 30, 7, (unsigned char *)msg);
     }
 
     if ((cfgfile = fopen(temp, "r")) == NULL)
@@ -3276,7 +3274,7 @@ void ReadConfigFile(char *temp, int showname)
     fclose(cfgfile);
 
     if (showname)
-        print(18, 7, 9, "û");
+        print(18, 7, 9, (unsigned char *)"?");
 
 
 }
@@ -3649,7 +3647,7 @@ void ReadSoup2SQCFG(void)
         temp[32] = '.';
         temp[31] = '.';
     }
-    print(14, 36, 7, temp);
+    print(14, 36, 7, (unsigned char *)temp);
 
 
     while (fgets(line, sizeof line, soupfile) != NULL)
@@ -3711,7 +3709,7 @@ void ReadSoup2SQCFG(void)
 
     fclose(soupfile);
 
-    print(14, 7, 9, "û");
+    print(14, 7, 9, (unsigned char *)"?");
 
 }
 

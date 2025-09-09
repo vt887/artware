@@ -9,6 +9,7 @@ int CheckForOutputFile(char *curfile);
 int WriteFmtBody(RAWBLOCK * blk, char *curfile);
 
 //int ExecAnySessionType(PSZ pszTitle, PSZ pszPgmName, PSZ pszInputs);
+int do_exec(const char *exfn, const char *epars); // Declaration for do_exec
 
 /* ----------------------------------------------- */
 
@@ -131,14 +132,14 @@ RAWBLOCK *spawn_editor(int checkchange, char *areatag)
         || (strcmpi(cfg.usr.editor + strlen(cfg.usr.editor) - 3, "bat") == 0))
     {
         sprintf(commandline, "%s %s %s", cfg.usr.editor, msgfile, areatag);
-        sprintf(tmpmsg, "þ Executing (batch) %s..", commandline);
+        sprintf(tmpmsg, "ï¿½ Executing (batch) %s..", commandline);
         print(0, 0, 7, tmpmsg);
         savescreen();
         editret = system(commandline);
     }
     else
     {
-        sprintf(tmpmsg, "þ Executing (direct) %s %s", cfg.usr.editor,
+        sprintf(tmpmsg, "ï¿½ Executing (direct) %s %s", cfg.usr.editor,
                 msgfile);
         print(0, 0, 7, tmpmsg);
         savescreen();
@@ -160,7 +161,7 @@ RAWBLOCK *spawn_editor(int checkchange, char *areatag)
             strcat(msgfile, " ");
             strcat(msgfile, areatag);
         }
-        sprintf(tmpmsg, "þ Executing %s %s", cfg.usr.editor, msgfile);
+        sprintf(tmpmsg, "ï¿½ Executing %s %s", cfg.usr.editor, msgfile);
         print(0, 0, 7, tmpmsg);
         savescreen();
 
@@ -195,7 +196,7 @@ RAWBLOCK *spawn_editor(int checkchange, char *areatag)
 #endif
 
     putscreen();
-    print(2, 0, 7, "þ Back in timEd..");
+    print(2, 0, 7, "ï¿½ Back in timEd..");
 
 #ifndef __OS2__
     if (editret & 0xFF00)
@@ -239,7 +240,7 @@ RAWBLOCK *spawn_editor(int checkchange, char *areatag)
 
     setvbuf(infile, NULL, _IOFBF, 4096);
 
-    print(4, 0, 7, "þ Reading message..");
+    print(4, 0, 7, "ï¿½ Reading message..");
 
     while (fgets(temp, 1023, infile))
     {
@@ -261,7 +262,7 @@ RAWBLOCK *spawn_editor(int checkchange, char *areatag)
             hadhcr = 1;
         }
 
-        if (!lasthard && (strchr(" -*.,\tþ", temp[0])) != NULL) /* Never
+        if (!lasthard && (strchr(" -*.,\t\u00A7", temp[0])) != NULL) /* Never
                                                                    'pull'
                                                                    such a
                                                                    line at 
@@ -667,17 +668,17 @@ int ShowEditMenu(MMSG * curmsg, int escallowed)
                   " Abort message   ");
 
         if (curmsg->status & SPELLCHECK)
-            printc(top + 4, left + 1, cfg.col[Castext], 'û');
+            printc(top + 4, left + 1, cfg.col[Castext], '*'); // Use '*' as a visible ASCII marker
         else
             printc(top + 4, left + 1, cfg.col[Castext], ' ');
 
         if (curmsg->status & SIGN)
-            printc(top + 2, left + 1, cfg.col[Castext], 'û');
+            printc(top + 2, left + 1, cfg.col[Castext], '*'); // Use '*' as a visible ASCII marker
         else
             printc(top + 2, left + 1, cfg.col[Castext], ' ');
 
         if (curmsg->status & ENCRYPT)
-            printc(top + 3, left + 1, cfg.col[Castext], 'û');
+            printc(top + 3, left + 1, cfg.col[Castext], '*'); // Use '*' as a visible ASCII marker
         else
             printc(top + 3, left + 1, cfg.col[Castext], ' ');
 

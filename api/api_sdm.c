@@ -53,7 +53,7 @@ int SDMCalcTrailing(MSGH * msgh);
 #define Mhd ((struct _sdmdata *)(mh->apidata))
 #define MsghMhd ((struct _sdmdata *)(((struct _msgh *)msgh)->sq->apidata))
 
-static byte *hwm_from = "-=|ÿSquishMailÿ|=-";
+static byte *hwm_from = "-=|ï¿½SquishMailï¿½|=-";
 
 void SDM2MIS(struct _omsg *sdmhdr, MIS * mis);
 char *MIS2SDM(MSGH * msgh, MIS * mis, struct _omsg *sdmhdr, char *kludges);
@@ -227,9 +227,9 @@ MSGH *SdmOpenMsg(MSGA * mh, word mode, dword msgnum)
 //  if(mode == MOPEN_RDHDR)
 //     mode = MOPEN_RDHDR;
 
-    if (msgnum == MSGNUM_CUR)
+    if ((sdword)msgnum == MSGNUM_CUR)
         msgnum = mh->cur_msg;
-    else if (msgnum == MSGNUM_PREV)
+    else if ((sdword)msgnum == MSGNUM_PREV)
     {
         for (mn = (word) mh->num_msg - 1;
              (sdword) mn < (sdword) mh->high_msg; mn--)
@@ -247,7 +247,7 @@ MSGH *SdmOpenMsg(MSGA * mh, word mode, dword msgnum)
             return NULL;
         }
     }
-    else if (msgnum == MSGNUM_NEXT)
+    else if ((sdword)msgnum == MSGNUM_NEXT)
     {
         for (mn = 0; mn < (word) mh->num_msg; mn++)
             if ((dword) Mhd->msgnum[mn] > mh->cur_msg)
@@ -876,7 +876,7 @@ dword SdmGetHighWater(MSGA * mh)
         return 0L;
 
     if (SdmReadMsg(msgh, &mis, 0L, 0L, NULL, 0L, NULL) == -1 ||
-        !eqstr(mis.from, hwm_from))
+        !eqstr((const char *)mis.from, (const char *)hwm_from))
         mh->high_water = 0L;
     else
         mh->high_water = (dword) mis.replyto;
@@ -1398,18 +1398,36 @@ void SDM2MIS(struct _omsg *sdmhdr, MIS * mis)
     if (sdmhdr->times == ~sdmhdr->cost && sdmhdr->times)
         mis->origfido.point = sdmhdr->times;
 
-    memcpy(mis->to, sdmhdr->to, 36);
-    memcpy(mis->from, sdmhdr->from, 36);
-    memcpy(mis->subj, sdmhdr->subj, 72);
-    memcpy(mis->ftsc_date, sdmhdr->date, 20);
+    strncpy((char *)mis->to, (const char *)sdmhdr->to, 35);
+    mis->to[35] = '\0';
+    strncpy((char *)mis->from, (const char *)sdmhdr->from, 35);
+    mis->from[35] = '\0';
+    strncpy((char *)mis->subj, (const char *)sdmhdr->subj, 71);
+    mis->subj[71] = '\0';
+    strncpy((char *)mis->ftsc_date, (const char *)sdmhdr->date, 19);
+    mis->ftsc_date[19] = '\0';
 
     Get_Binary_Date(&tempdate, &sdmhdr->date_written, sdmhdr->date);
     DosDate_to_TmDate((union stamp_combo *)&tempdate, &tmdate);
-    mis->msgwritten = JAMsysMkTime(&tmdate);
+
+    JAMTM jdate;
+
+    jdate.tm_sec   = tmdate.tm_sec;
+    jdate.tm_min   = tmdate.tm_min;
+    jdate.tm_hour  = tmdate.tm_hour;
+    jdate.tm_mday  = tmdate.tm_mday;
+    jdate.tm_mon   = tmdate.tm_mon;
+    jdate.tm_year  = tmdate.tm_year;
+    jdate.tm_wday  = tmdate.tm_wday;
+    jdate.tm_yday  = tmdate.tm_yday;
+    jdate.tm_isdst = tmdate.tm_isdst;
+
+    mis->msgwritten = JAMsysMkTime(&jdate);
 
     Get_Binary_Date(&tempdate, &sdmhdr->date_arrived, sdmhdr->date);
     DosDate_to_TmDate((union stamp_combo *)&tempdate, &tmdate);
-    mis->msgprocessed = JAMsysMkTime(&tmdate);
+
+    mis->msgprocessed = JAMsysMkTime(&jdate);
 
     mis->replyto = sdmhdr->reply;
     mis->replies[0] = sdmhdr->up;
@@ -1574,12 +1592,12 @@ char *MIS2SDM(MSGH * msgh, MIS * mis, struct _omsg *sdmhdr, char *kludges)
     TmDate_to_DosDate(tmdate, (union stamp_combo *)&sdmhdr->date_arrived);
 
     timestamp = JAMsysLocalTime(&mis->msgwritten);
-    sprintf(sdmhdr->date, "%02d %s %02d  %02d:%02d:%02d",
+    sprintf((char *)sdmhdr->date, "%02d %s %02d  %02d:%02d:%02d",
             timestamp->tm_mday, months_ab[timestamp->tm_mon],
             timestamp->tm_year % 100, timestamp->tm_hour,
             timestamp->tm_min, timestamp->tm_sec);
 
-    Files2Subject(mis, sdmhdr->subj);
+    Files2Subject(mis, (char *)sdmhdr->subj);
 
     return (newkludges ? newkludges : NULL);
 
