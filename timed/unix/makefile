@@ -5,7 +5,8 @@ TARGET = ../timedunx
 # Compiler and flags
 CC = gcc
 RM = rm -f
-CFLAGS = -Wfatal-errors -m64 -fstack-protector-all -W -Wall -g -I../../api -I../util -funsigned-char
+CFLAGS = -g -Wall -Wextra -std=c11 -I$(SRC_DIR) -MMD -MP -Wfatal-errors -m64 -fstack-protector-all -W -I../../api -I../util -funsigned-char
+
 MSGAPI = ../../api/unixapi.a
 AR=ar
 RANLIB=ranlib

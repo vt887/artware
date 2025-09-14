@@ -70,7 +70,7 @@ void _fast iqsort(char *base, unsigned int nel, unsigned int inwidth,
                   int (_stdc * comp) (void *, void *));
 void _fast colour_to_string(int col, char *s);
 int _fast make_dir(char *dir);
-FILE *_fast shfopen(char *name, char *fpmode, int fdmode);;
+FILE *_fast shfopen(char *name, char *fpmode, int fdmode);
 int _fast do_tune(FILE * tunefile, int (_stdc * chkfunc) (void), int dv);
 int _fast play_tune(char *filespec, char *name,
                     int (_stdc * chkfunc) (void), int dv);

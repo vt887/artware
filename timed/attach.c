@@ -138,7 +138,7 @@ int check_attach(MIS * mis, char *list, int copyfiles)
                 sprintf(filename, "%s" DIRSEP "%s%s", cfg.usr.localfiles, fname,
                         ext);
 
-                sprintf(temp, " þ Copying %s to %s..", master[i],
+                sprintf(temp, " ï·¿ Copying %s to %s..", master[i],
                         filename);
                 printeol(maxy - 1, 0, cfg.col[Cmsgbar], temp);
 

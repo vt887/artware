@@ -5,7 +5,7 @@ TARGET=../unixapi.a
 
 # Compiler and flags
 CC=gcc
-CFLAGS=-g -Wall
+CFLAGS=-g -Wall -Wextra -std=c11 -I$(SRC_DIR) -MMD -MP
 AR=ar
 RANLIB=ranlib
 SRC_DIR=..
@@ -29,5 +29,6 @@ $(TARGET): $(OBJS)
 # Clean
 .PHONY: clean
 clean:
-	rm -f $(OBJS) $(TARGET)
+	rm -f $(OBJS) $(TARGET) *.d
+
 

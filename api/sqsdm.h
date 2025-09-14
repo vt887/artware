@@ -11,6 +11,7 @@
  * the structure used by the individual message base formats, is done       *
  * on-the-fly by the API routines.                                          */
 
+#pragma pack(push, 1)
 typedef struct
 {
     dword attr;
@@ -74,6 +75,8 @@ typedef struct
                                    others * should use one of the two
                                    binary datestamps, * above.  */
 } XMSG;
+
+#pragma pack(pop)
 
 #define SQADDMASK1 (aAS|aDIR|aIMM|aKFS|aTFS|aLOK|aCFM)
 #define SQADDMASK2 (aHUB|aXMA|aHIR|aCOV|aSIG|aLET|aFAX)

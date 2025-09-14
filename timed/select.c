@@ -234,15 +234,15 @@ AREA *SelectArea(AREA * first, int pickonly, AREA * area_to_start)
                 continue;
 
             if (curptr->scanned)
-                sprintf(temp, " %-40.40s %-20.20s  %5ld  %5ld  ",
+                snprintf(temp, sizeof(temp), " %-40.40s %-20.20s  %5ld  %5ld  ",
                         curptr->desc, curptr->tag,
                         (dword) (curptr->highest - curptr->lr),
                         curptr->lr);
             else
-                sprintf(temp, " %-40.40s %-20.20s      -      -  ",
+                snprintf(temp, sizeof(temp), " %-40.40s %-20.20s      -      -  ",
                         curptr->desc, curptr->tag);
             if (curptr->tagged)
-                temp[0] = 'ş';
+                temp[0] = '*';
             if (curptr->highest > curptr->lr)
                 temp[63] = '*';
             if (!doredraw && l == oldcur) /* remove inverse bar */
@@ -766,7 +766,7 @@ int speedsearch(char c, AREA * first, int teller, int pickonly)
     if (c == 0)                 /* clear the string */
     {
         memset(speedtag, '\0', 20);
-        print(1, 42, cfg.col[Casframe], "ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ");
+        print(1, 42, cfg.col[Casframe], "ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½");
         return -1;
     }
 

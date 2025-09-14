@@ -94,9 +94,9 @@ void Files2Subject(MIS * mis, char *outsubj)
             if (current->pw)
             {
                 if (mi.nospace)
-                    sprintf(temp, "!%-0.69s", current->pw); // Password
+                    sprintf(temp, "!%-69s", current->pw); // Password
                 else
-                    sprintf(temp, " !%-0.69s", current->pw); // Passwora
+                    sprintf(temp, " !%-69s", current->pw); // Password
             }
 
             if (strlen(outsubj))
@@ -170,7 +170,7 @@ int AnalyseTrail(char *s, unsigned len, MIS * mis)
 
         // Strip \r, \n and LF's before this.
         while ((charptr >= s) &&
-               (*charptr == '\r' || *charptr == '\n' || *charptr == 0x8D))
+               (*charptr == '\r' || *charptr == '\n' || (unsigned char)*charptr == 0x8D))
 
         {
             *charptr = '\0';

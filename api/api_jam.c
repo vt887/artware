@@ -17,7 +17,6 @@
 #include <string.h>
 #include <time.h>
 #include <fcntl.h>
-#include <time.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include "dr.h"
@@ -532,9 +531,9 @@ sword JAMWriteMsg(MSGH * msgh, word append, MIS * mis, byte * text,
             /* Set index values */
             JamData->Idx.HdrOffset = msgh->hdroffset;
 
-            strcpy(temp, mis->to);
-            strlwr(temp);
-            JamData->Idx.UserCRC = JAMsysCrc32(temp, strlen(temp), -1L);
+            strcpy((char *)temp, (char *)mis->to);
+            strlwr((char *)temp);
+            JamData->Idx.UserCRC = JAMsysCrc32(temp, strlen((char *)temp), -1L);
 
             /* Write out the index */
 
@@ -562,7 +561,7 @@ sword JAMWriteMsg(MSGH * msgh, word append, MIS * mis, byte * text,
         // Convert MIS structure, for MOPEN_RW only partially (attribs,
         // links)
 
-        SQ2JAM(mis, ctxt, sq, msgh->mode, &SubFieldPtr);
+        SQ2JAM(mis, (char *)ctxt, sq, msgh->mode, &SubFieldPtr);
 
         /* Write out the header */
 
@@ -1109,9 +1108,9 @@ void near JAM2SQ(struct _msgh *msgh, byte * Subfields)
             memset(temp, '\0', sizeof(temp));
             copylen = min(100, SFptr->DatLen);
             memcpy(temp, bufptr, copylen);
-            if (ParseFido(temp, &msgh->mis.origfido, msgh->mis.origdomain)
+            if (ParseFido((char *)temp, &msgh->mis.origfido, (char *)msgh->mis.origdomain)
                 == -1)
-                strcpy(msgh->mis.originter, temp); // Not Fido-type
+                strcpy((char *)msgh->mis.originter, (char *)temp); // Not Fido-type
                                                    // address, so..
             break;
 
@@ -1119,25 +1118,28 @@ void near JAM2SQ(struct _msgh *msgh, byte * Subfields)
             memset(temp, '\0', sizeof(temp));
             copylen = min(100, SFptr->DatLen);
             memcpy(temp, bufptr, copylen);
-            if (ParseFido(temp, &msgh->mis.destfido, msgh->mis.destdomain)
+            if (ParseFido((char *)temp, &msgh->mis.destfido, (char *)msgh->mis.destdomain)
                 == -1)
-                strcpy(msgh->mis.destinter, temp); // Not Fido-type
+                strcpy((char *)msgh->mis.destinter, (char *)temp); // Not Fido-type
                                                    // address, so..
             break;
 
         case JAMSFLD_SENDERNAME:
+            size_t copy_len_from = min(copylen, sizeof(msgh->mis.from));
             copylen = min(100, SFptr->DatLen);
-            memcpy(&msgh->mis.from, bufptr, copylen);
+            memcpy(&msgh->mis.from, bufptr, copy_len_from);
             break;
 
         case JAMSFLD_RECVRNAME:
+            size_t copy_len_to = min(copylen, sizeof(msgh->mis.to));
             copylen = min(100, SFptr->DatLen);
-            memcpy(&msgh->mis.to, bufptr, copylen);
+            memcpy(&msgh->mis.to, bufptr, copy_len_to);
             break;
 
         case JAMSFLD_SUBJECT:
+            size_t copy_len_subj = min(copylen, sizeof(msgh->mis.subj));
             copylen = min(100, SFptr->DatLen);
-            memcpy(&msgh->mis.subj, bufptr, copylen);
+            memcpy(&msgh->mis.subj, bufptr, copy_len_subj);
             break;
 
         case JAMSFLD_MSGID:
@@ -1379,9 +1381,9 @@ void near SQ2JAM(MIS * mis, char *ctxt, MSGA * sq, word mode,
     if ((*SubFieldPtr = calloc(1, curlen)) == NULL)
         return;
 
-    JAMmbAddField(*SubFieldPtr, JAMSFLD_SENDERNAME, strlen(mis->from),
+    JAMmbAddField(*SubFieldPtr, JAMSFLD_SENDERNAME, strlen((char *)mis->from),
                   &position, mis->from);
-    JAMmbAddField(*SubFieldPtr, JAMSFLD_RECVRNAME, strlen(mis->to),
+    JAMmbAddField(*SubFieldPtr, JAMSFLD_RECVRNAME, strlen((char *)mis->to),
                   &position, mis->to);
 
     if (sq->type & (MSGTYPE_NET | MSGTYPE_MAIL))
@@ -1400,7 +1402,7 @@ void near SQ2JAM(MIS * mis, char *ctxt, MSGA * sq, word mode,
             {
                 strcpy(temp, temp + 7); // Skip "^AFLAGS "
                 JAMmbAddField(*SubFieldPtr, JAMSFLD_FLAGS, strlen(temp),
-                              &position, temp);
+                              &position, (byte *)temp);
             }
         }
 
@@ -1415,11 +1417,11 @@ void near SQ2JAM(MIS * mis, char *ctxt, MSGA * sq, word mode,
         if (mis->origdomain[0] != '\0')
         {
             strcat(temp, "@");
-            strcat(temp, mis->origdomain);
+            strcat(temp, (char *)mis->origdomain);
         }
 
         JAMmbAddField(*SubFieldPtr, JAMSFLD_OADDRESS, strlen(temp),
-                      &position, temp);
+                      &position, (byte *)temp);
 
 
         if (mis->destfido.point == 0)
@@ -1433,11 +1435,11 @@ void near SQ2JAM(MIS * mis, char *ctxt, MSGA * sq, word mode,
         if (mis->destdomain[0] != '\0')
         {
             strcat(temp, "@");
-            strcat(temp, mis->destdomain);
+            strcat(temp, (char *)mis->destdomain);
         }
 
         JAMmbAddField(*SubFieldPtr, JAMSFLD_DADDRESS, strlen(temp),
-                      &position, temp);
+                      &position, (byte *)temp);
     }
 
     JAMmbAddField(*SubFieldPtr, JAMSFLD_SUBJECT, strlen(mis->subj),
@@ -1504,7 +1506,7 @@ void near SQ2JAM(MIS * mis, char *ctxt, MSGA * sq, word mode,
             }
 
             JAMmbAddField(*SubFieldPtr, JAMSFLD_SEENBY2D,
-                          strlen(curstring->s), &position, curstring->s);
+                          strlen(curstring->s), &position, (byte *)curstring->s);
         }
     }
 
@@ -1527,7 +1529,7 @@ void near SQ2JAM(MIS * mis, char *ctxt, MSGA * sq, word mode,
             }
 
             JAMmbAddField(*SubFieldPtr, JAMSFLD_PATH2D,
-                          strlen(curstring->s), &position, curstring->s);
+                          strlen(curstring->s), &position, (byte *)curstring->s);
         }
     }
 
@@ -1550,7 +1552,7 @@ void near SQ2JAM(MIS * mis, char *ctxt, MSGA * sq, word mode,
             }
 
             JAMmbAddField(*SubFieldPtr, JAMSFLD_TRACE,
-                          strlen(curstring->s), &position, curstring->s);
+                          strlen((char *)curstring->s), &position, (byte *)curstring->s);
         }
     }
 
@@ -1599,38 +1601,38 @@ void near SQ2JAM(MIS * mis, char *ctxt, MSGA * sq, word mode,
         {
             JAMmbAddField(*SubFieldPtr, JAMSFLD_MSGID,
                           endptr - (kludgeptr + 8), &position,
-                          kludgeptr + 8);
+                          (byte *)(kludgeptr + 8));
             memset(temp, '\0', sizeof(temp));
             memcpy(temp, kludgeptr + 8, endptr - (kludgeptr + 8));
-            strlwr(temp);
+            strlwr((char *)temp);
             JamData->Hdr.MsgIdCRC = JAMsysCrc32(temp, strlen(temp), -1L);
         }
         else if (!strncmp(kludgeptr + 1, "REPLY: ", 7))
         {
             JAMmbAddField(*SubFieldPtr, JAMSFLD_REPLYID,
                           endptr - (kludgeptr + 8), &position,
-                          kludgeptr + 8);
+                          (byte *)(kludgeptr + 8));
             memset(temp, '\0', sizeof(temp));
             memcpy(temp, kludgeptr + 8, endptr - (kludgeptr + 8));
-            strlwr(temp);
+            strlwr((char *)temp);
             JamData->Hdr.ReplyCRC = JAMsysCrc32(temp, strlen(temp), -1L);
         }
         else if (!strncmp(kludgeptr + 1, "PID: ", 5))
         {
             JAMmbAddField(*SubFieldPtr, JAMSFLD_PID,
                           endptr - (kludgeptr + 6), &position,
-                          kludgeptr + 6);
+                          (byte *)(kludgeptr + 6));
         }
         else if (!strncmp(kludgeptr + 1, "TZUTC: ", 7))
         {
             JAMmbAddField(*SubFieldPtr, JAMSFLD_TZUTCINFO,
                           endptr - (kludgeptr + 8), &position,
-                          kludgeptr + 8);
+                          (byte *)(kludgeptr + 8));
         }
         else
             JAMmbAddField(*SubFieldPtr, JAMSFLD_FTSKLUDGE,
                           endptr - (kludgeptr + 1), &position,
-                          kludgeptr + 1);
+                          (byte *)(kludgeptr + 1));
         kludgeptr++;
     }
 
@@ -1693,7 +1695,7 @@ int near JAMmbOpen(MSGA * sq, byte * tempname)
     unsigned mode = S_IREAD | S_IWRITE;
 
 
-    strcpy(name, tempname);
+    strcpy((char *)name, (const char *)tempname);
 #ifdef __GNUC__
     Strip_Trailing(name, '/');
 #else
